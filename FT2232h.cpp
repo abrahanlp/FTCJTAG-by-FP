@@ -172,8 +172,9 @@ FTC_STATUS FT2232h::FTC_IsDeviceHiSpeedType(FT_DEVICE_LIST_INFO_NODE devInfo, LP
   if ((devInfo.Type == FT_DEVICE_2232H) || (devInfo.Type == FT_DEVICE_4232H))
   {
     // Search for the first occurrence of the channel string ie ' A' or ' B'. The Description field contains the device name
-    if (((pszStringSearch = strstr(strupr(devInfo.Description), DEVICE_NAME_CHANNEL_A)) != NULL) ||
-        ((pszStringSearch = strstr(strupr(devInfo.Description), DEVICE_NAME_CHANNEL_B)) != NULL))
+    _strupr_s(devInfo.Description, sizeof(((FT_DEVICE_LIST_INFO_NODE*)0)->Description));
+    if (((pszStringSearch = strstr(devInfo.Description, DEVICE_NAME_CHANNEL_A)) != NULL) ||
+        ((pszStringSearch = strstr(devInfo.Description, DEVICE_NAME_CHANNEL_B)) != NULL))
     {
       // Ensure the last two characters of the device name is ' A' ie channel A or ' B' ie channel B
       if (strlen(pszStringSearch) == 2)
@@ -367,18 +368,20 @@ FTC_STATUS FT2232h::FTC_GetHiSpeedDeviceNameLocationIDChannel(DWORD dwDeviceInde
           {
             if (strlen(szDeviceNameBuffer) <= dwDeviceNameBufferSize)
             {
-              strcpy(lpDeviceName, szDeviceNameBuffer);
+              strcpy_s(lpDeviceName, dwDeviceNameBufferSize, szDeviceNameBuffer);
 
               // Check for hi-speed device channel A or channel B
-              if (((pszStringSearch = strstr(strupr(szDeviceNameBuffer), DEVICE_NAME_CHANNEL_A)) != NULL) ||
-                  ((pszStringSearch = strstr(strupr(szDeviceNameBuffer), DEVICE_NAME_CHANNEL_B)) != NULL))
+              _strupr_s(szDeviceNameBuffer, sizeof(szDeviceNameBuffer));
+              if (((pszStringSearch = strstr(szDeviceNameBuffer, DEVICE_NAME_CHANNEL_A)) != NULL) ||
+                  ((pszStringSearch = strstr(szDeviceNameBuffer, DEVICE_NAME_CHANNEL_B)) != NULL))
               {
                 if (dwChannelBufferSize >= CHANNEL_STRING_MIN_BUFF_SIZE)
                 {
-                  if ((pszStringSearch = strstr(strupr(szDeviceNameBuffer), DEVICE_NAME_CHANNEL_A)) != NULL)
-                    strcpy(lpChannel, CHANNEL_A);
+                  _strupr_s(szDeviceNameBuffer, sizeof(szDeviceNameBuffer));
+                  if ((pszStringSearch = strstr(szDeviceNameBuffer, DEVICE_NAME_CHANNEL_A)) != NULL)
+                    strcpy_s(lpChannel, dwChannelBufferSize, CHANNEL_A);
                   else
-                    strcpy(lpChannel, CHANNEL_B);
+                    strcpy_s(lpChannel, dwChannelBufferSize, CHANNEL_B);
                 }
                 else
                   Status = FTC_CHANNEL_BUFFER_TOO_SMALL;
@@ -416,7 +419,8 @@ FTC_STATUS FT2232h::FTC_OpenSpecifiedHiSpeedDevice(LPSTR lpDeviceName, DWORD dwL
 
   if ((lpDeviceName != NULL) && (lpChannel != NULL))
   {
-    if ((strcmp(strupr(lpChannel), CHANNEL_A) == 0) || (strcmp(strupr(lpChannel), CHANNEL_B) == 0))
+    _strupr_s(lpChannel, sizeof(CHANNEL_A));
+    if ((strcmp(lpChannel, CHANNEL_A) == 0) || (strcmp(lpChannel, CHANNEL_B) == 0))
     {
       if ((Status = FTC_IsDeviceNameLocationIDValid(lpDeviceName, dwLocationID, &dwDeviceType)) == FTC_SUCCESS)
       {
@@ -546,7 +550,7 @@ void FT2232h::FTC_RemoveHiSpeedDeviceHandle(FTC_HANDLE ftHandle)
         if (OpenedHiSpeedDevices[iDeviceCntr].hDevice == ftHandle)
         {
           OpenedHiSpeedDevices[iDeviceCntr].dwProcessId = 0;
-          strcpy(OpenedHiSpeedDevices[iDeviceCntr].szDeviceName, "");
+          strcpy_s(OpenedHiSpeedDevices[iDeviceCntr].szDeviceName, MAX_NUM_DEVICE_NAME_CHARS, "");
           OpenedHiSpeedDevices[iDeviceCntr].dwLocationID = 0;
           OpenedHiSpeedDevices[iDeviceCntr].hDevice = 0;
 

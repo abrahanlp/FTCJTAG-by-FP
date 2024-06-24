@@ -2613,7 +2613,7 @@ FTC_STATUS FT2232hMpsseJtag::JTAG_GetDllVersion(LPSTR lpDllVersionBuffer, DWORD 
   if (lpDllVersionBuffer != NULL)
   {
     if (dwBufferSize > strlen(DLL_VERSION_NUM))
-      strcpy(lpDllVersionBuffer, DLL_VERSION_NUM);
+      strcpy_s(lpDllVersionBuffer, sizeof(DLL_VERSION_NUM), DLL_VERSION_NUM);
     else
       Status = FTC_DLL_VERSION_BUFFER_TOO_SMALL;
   }
@@ -2645,26 +2645,26 @@ FTC_STATUS FT2232hMpsseJtag::JTAG_GetErrorCodeString(LPSTR lpLanguage, FTC_STATU
       if (strcmp(lpLanguage, ENGLISH) == 0)
       {
         if ((StatusCode >= FTC_SUCCESS) && (StatusCode <= FTC_INSUFFICIENT_RESOURCES))
-          strcpy_s(szErrorMsg, EN_Common_Errors[StatusCode]);
+          strcpy_s(szErrorMsg, MAX_ERROR_MSG_SIZE, EN_Common_Errors[StatusCode]);
         else
-          strcpy_s(szErrorMsg, EN_New_Errors[(StatusCode - FTC_FAILED_TO_COMPLETE_COMMAND)]);
+          strcpy_s(szErrorMsg, MAX_ERROR_MSG_SIZE, EN_New_Errors[(StatusCode - FTC_FAILED_TO_COMPLETE_COMMAND)]);
       }
       else
       {
-        strcpy_s(szErrorMsg, EN_New_Errors[FTC_INVALID_LANGUAGE_CODE - FTC_FAILED_TO_COMPLETE_COMMAND]);
+        strcpy_s(szErrorMsg, MAX_ERROR_MSG_SIZE, EN_New_Errors[FTC_INVALID_LANGUAGE_CODE - FTC_FAILED_TO_COMPLETE_COMMAND]);
 
         Status = FTC_INVALID_LANGUAGE_CODE;
       }
     }
     else
     {
-      sprintf(szErrorMsg, "%s%d", EN_New_Errors[FTC_INVALID_STATUS_CODE - FTC_FAILED_TO_COMPLETE_COMMAND], StatusCode);
+      sprintf_s(szErrorMsg, MAX_ERROR_MSG_SIZE, "%s%d", EN_New_Errors[FTC_INVALID_STATUS_CODE - FTC_FAILED_TO_COMPLETE_COMMAND], StatusCode);
 
       Status = FTC_INVALID_STATUS_CODE;
     }
 
     if (dwBufferSize > strlen(szErrorMsg))
-      strcpy(lpErrorMessageBuffer, szErrorMsg);
+      strcpy_s(lpErrorMessageBuffer, dwBufferSize, szErrorMsg);
     else
       Status = FTC_ERROR_MESSAGE_BUFFER_TOO_SMALL;
   }

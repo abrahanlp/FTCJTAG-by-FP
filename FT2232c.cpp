@@ -175,7 +175,8 @@ FTC_STATUS FT2232c::FTC_IsDeviceFT2232CType(FT_DEVICE_LIST_INFO_NODE devInfo, LP
   if (devInfo.Type == FT_DEVICE_2232C)
   {
     // Search for the last occurrence of the channel string ie ' A'. The Description field contains the device name
-    if ((pszStringSearch = strstr(strupr(devInfo.Description), DEVICE_CHANNEL_A)) != NULL)
+    _strupr_s(devInfo.Description, sizeof(((FT_DEVICE_LIST_INFO_NODE*)0)->Description));
+    if ((pszStringSearch = strstr(devInfo.Description, DEVICE_CHANNEL_A)) != NULL)
     {
       // Ensure the last two characters of the device name is ' A' ie channel A
       if (strlen(pszStringSearch) == 2)
@@ -193,7 +194,9 @@ FT2232c::FT2232c(void)
   uiNumOpenedDevices = 0;
 
   for (iDeviceCntr = 0; (iDeviceCntr < MAX_NUM_DEVICES); iDeviceCntr++)
+  {
     OpenedDevices[iDeviceCntr].dwProcessId = 0;
+  }
 
   dwNumBytesToSend = 0;
 }
@@ -346,7 +349,7 @@ FTC_STATUS FT2232c::FTC_GetDeviceNameLocationID(DWORD dwDeviceIndex, LPSTR lpDev
           if (Status == FTC_SUCCESS)
           {
             if (strlen(szDeviceNameBuffer) <= dwBufferSize)
-              strcpy(lpDeviceName, szDeviceNameBuffer);
+              strcpy_s(lpDeviceName, dwBufferSize, szDeviceNameBuffer);
             else
               Status = FTC_DEVICE_NAME_BUFFER_TOO_SMALL;
           }
@@ -482,7 +485,7 @@ void FT2232c::FTC_InsertDeviceHandle(LPSTR lpDeviceName, DWORD dwLocationID, FTC
       if (OpenedDevices[iDeviceCntr].dwProcessId == 0)
       {
         OpenedDevices[iDeviceCntr].dwProcessId = dwProcessId;
-        strcpy(OpenedDevices[iDeviceCntr].szDeviceName, lpDeviceName);
+        strcpy_s(OpenedDevices[iDeviceCntr].szDeviceName, MAX_NUM_DEVICE_NAME_CHARS, lpDeviceName);
         OpenedDevices[iDeviceCntr].dwLocationID = dwLocationID;
         OpenedDevices[iDeviceCntr].hDevice = ftHandle;
 
@@ -540,7 +543,7 @@ void FT2232c::FTC_RemoveDeviceHandle(FTC_HANDLE ftHandle)
         if (OpenedDevices[iDeviceCntr].hDevice == ftHandle)
         {
           OpenedDevices[iDeviceCntr].dwProcessId = 0;
-          strcpy(OpenedDevices[iDeviceCntr].szDeviceName, "");
+          strcpy_s(OpenedDevices[iDeviceCntr].szDeviceName, MAX_NUM_DEVICE_NAME_CHARS, "");
           OpenedDevices[iDeviceCntr].dwLocationID = 0;
           OpenedDevices[iDeviceCntr].hDevice = 0;
 

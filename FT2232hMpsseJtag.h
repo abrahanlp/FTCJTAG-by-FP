@@ -42,7 +42,7 @@ Revision History:
 #define DEVICE_CHANNEL_A " A"
 #define DEVICE_CHANNEL_B " B"
 
-#define DLL_VERSION_NUM "2.0"
+#define DLL_VERSION_NUM "FP_0.0"
 
 #define USB_INPUT_BUFFER_SIZE 65536   // 64K
 #define USB_OUTPUT_BUFFER_SIZE 65536  // 64K
