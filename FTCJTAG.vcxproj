@@ -162,8 +162,10 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Message>Authenticode Signing</Message>
-      <Command>signtool.exe sign /f V:\MyCertificate.pfx /p compdesi /d "$(TargetName)" /t "http://timestamp.verisign.com/scripts/timestamp.dll" $(OutDir)$(TargetFileName)</Command>
+      <Message>
+      </Message>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -196,8 +198,10 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Message>Authenticode Signing</Message>
-      <Command>signtool.exe sign /f V:\MyCertificate.pfx /p compdesi /d "$(TargetName)" /t "http://timestamp.verisign.com/scripts/timestamp.dll" $(OutDir)$(TargetFileName)</Command>
+      <Message>
+      </Message>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
