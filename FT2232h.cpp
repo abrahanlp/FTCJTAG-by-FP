@@ -106,7 +106,7 @@ FTC_STATUS FT2232h::FTC_IsDeviceNameLocationIDValid(LPSTR lpDeviceName, DWORD dw
   DWORD dwProductVendorID = 0;
   DWORD dwLocID = 0;
   SerialNumber szSerialNumber;
-  char szDeviceNameBuffer[DEVICE_STRING_BUFF_SIZE + 1];
+  char szDeviceNameBuffer[DEVICE_STRING_BUFF_SIZE + 1] = {0};
   FT_HANDLE ftHandle;
   bool bDeviceNameFound = false;
   bool bLocationIDFound = false;
@@ -290,7 +290,7 @@ FTC_STATUS FT2232h::FTC_GetNumHiSpeedDevices(LPDWORD lpdwNumHiSpeedDevices, HiSp
   FTC_STATUS Status = FTC_SUCCESS;
 
   DWORD dwNumOfDevices = 0;
-  FT_DEVICE_LIST_INFO_NODE *pDevInfoList;
+  FT_DEVICE_LIST_INFO_NODE *pDevInfoList = NULL;
   FT_DEVICE_LIST_INFO_NODE devInfo;
   DWORD dwDeviceIndex = 0;
   BOOL bHiSpeedTypeDevice = FALSE;
@@ -347,7 +347,7 @@ FTC_STATUS FT2232h::FTC_GetHiSpeedDeviceNameLocationIDChannel(DWORD dwDeviceInde
   DWORD dwFlags = 0;
   DWORD dwProductVendorID = 0;
   SerialNumber szSerialNumber;
-  char szDeviceNameBuffer[DEVICE_STRING_BUFF_SIZE + 1];
+  char szDeviceNameBuffer[DEVICE_STRING_BUFF_SIZE + 1] = {0};
   FT_HANDLE ftHandle;
   LPSTR pszStringSearch;
 
