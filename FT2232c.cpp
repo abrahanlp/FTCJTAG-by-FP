@@ -32,8 +32,6 @@ Revision History:
 	
 --*/
 
-#define WIO_DEFINED
-
 #include "stdafx.h"
 
 #include "FT2232c.h"
@@ -235,7 +233,9 @@ FTC_STATUS FT2232c::FTC_GetNumDevices(LPDWORD lpdwNumDevices, FT2232CDeviceIndex
         {
           do
           {
+            #pragma warning (disable:6385)
             devInfo = pDevInfoList[dwDeviceIndex];
+            #pragma warning (default:6385)
 
             Status = FTC_IsDeviceFT2232CType(devInfo, &bFT2232CTypeDevice);
 
@@ -294,7 +294,9 @@ FTC_STATUS FT2232c::FTC_GetNumNotOpenedDevices(LPDWORD lpdwNumNotOpenedDevices, 
         {
           do
           {
+            #pragma warning (disable:6385)
             devInfo = pDevInfoList[dwDeviceIndex];
+            #pragma warning (default:6385)
 
             Status = FTC_IsDeviceFT2232CType(devInfo, &bFT2232CTypeDevice);
 

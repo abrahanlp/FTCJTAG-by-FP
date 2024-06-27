@@ -26,8 +26,6 @@ Revision History:
 	
 --*/
 
-#define WIO_DEFINED
-
 #include "stdafx.h"
 
 #include "FT2232h.h"
@@ -309,7 +307,9 @@ FTC_STATUS FT2232h::FTC_GetNumHiSpeedDevices(LPDWORD lpdwNumHiSpeedDevices, HiSp
         {
           do
           {
+            #pragma warning (disable:6385)
             devInfo = pDevInfoList[dwDeviceIndex];
+            #pragma warning (default:6385)
 
             if ((Status = FTC_IsDeviceHiSpeedType(devInfo, &bHiSpeedTypeDevice)) == FTC_SUCCESS)
             {
