@@ -29,8 +29,6 @@ Revision History:
 
 --*/
 
-#define WIO_DEFINED
-
 #include "stdafx.h"
 
 #include <io.h>
@@ -824,7 +822,7 @@ FTC_STATUS FT2232hMpsseJtag::GetDataFromExternalDevice(FTC_HANDLE ftHandle, DWOR
   DWORD dwNumReadDataBytes = 0;
   DWORD dwNumRemainingDataBits = 0;
   DWORD dwNumDataBytesRead = 0;
-  DWORD dwNumBytesDeviceInputBuffer = 0;
+  //DWORD dwNumBytesDeviceInputBuffer = 0;
   InputByteBuffer InputBuffer;
   DWORD dwBytesReadIndex = 0;
   BYTE LastDataBit = 0;
@@ -1063,7 +1061,7 @@ FTC_STATUS FT2232hMpsseJtag::GenerateTCKClockPulses(FTC_HANDLE ftHandle, DWORD d
   DWORD dwNumClockPulsesByteBlockCntr = 0;
   DWORD dwNumClockPulsesBytes = 0;
   DWORD dwNumRemainingClockPulsesBits = 0;
-  DWORD dwDataBufferIndex = 0;
+  //DWORD dwDataBufferIndex = 0;
 
   MoveJTAGFromOneStateToAnother(RunTestIdle, NO_LAST_DATA_BIT, FALSE);
 
@@ -2390,7 +2388,7 @@ FTC_STATUS FT2232hMpsseJtag::JTAG_AddWriteCommand(BOOL bInstructionTestData, DWO
                                                   DWORD dwTapControllerState)
 {
   FTC_STATUS Status = FTC_SUCCESS;
-  DWORD dwNumCommandDataBytes = 0;
+  //DWORD dwNumCommandDataBytes = 0;
   DWORD dwNumDevices;
   FT2232CDeviceIndexes FT2232CIndexes;
 
@@ -2415,7 +2413,7 @@ FTC_STATUS FT2232hMpsseJtag::JTAG_AddWriteCommand(BOOL bInstructionTestData, DWO
 FTC_STATUS FT2232hMpsseJtag::JTAG_AddReadCommand(BOOL bInstructionTestData, DWORD dwNumBitsToRead, DWORD dwTapControllerState)
 {
   FTC_STATUS Status = FTC_SUCCESS;
-  DWORD dwNumTmsClocks = 0;
+  //DWORD dwNumTmsClocks = 0;
   DWORD dwNumDevices;
   FT2232CDeviceIndexes FT2232CIndexes;
 
@@ -2442,8 +2440,8 @@ FTC_STATUS FT2232hMpsseJtag::JTAG_AddWriteReadCommand(BOOL bInstructionTestData,
                                                       DWORD dwTapControllerState)
 {
   FTC_STATUS Status = FTC_SUCCESS;
-  DWORD dwNumCommandDataBytes = 0;
-  DWORD dwNumTmsClocks = 0;
+  //DWORD dwNumCommandDataBytes = 0;
+  //DWORD dwNumTmsClocks = 0;
   DWORD dwNumDevices;
   FT2232CDeviceIndexes FT2232CIndexes;
 
@@ -2658,7 +2656,7 @@ FTC_STATUS FT2232hMpsseJtag::JTAG_GetErrorCodeString(LPSTR lpLanguage, FTC_STATU
     }
     else
     {
-      sprintf_s(szErrorMsg, MAX_ERROR_MSG_SIZE, "%s%d", EN_New_Errors[FTC_INVALID_STATUS_CODE - FTC_FAILED_TO_COMPLETE_COMMAND], StatusCode);
+      sprintf_s(szErrorMsg, MAX_ERROR_MSG_SIZE, "%s%ld", EN_New_Errors[FTC_INVALID_STATUS_CODE - FTC_FAILED_TO_COMPLETE_COMMAND], StatusCode);
 
       Status = FTC_INVALID_STATUS_CODE;
     }
