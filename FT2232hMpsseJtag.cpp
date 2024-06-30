@@ -2627,7 +2627,7 @@ FTC_STATUS FT2232hMpsseJtag::JTAG_GetErrorCodeString(LPSTR lpLanguage, FTC_STATU
                                                      LPSTR lpErrorMessageBuffer, DWORD dwBufferSize)
 {
   FTC_STATUS Status = FTC_SUCCESS;
-  CHAR szErrorMsg[MAX_ERROR_MSG_SIZE];
+  CHAR szErrorMsg[MAX_ERROR_MSG_SIZE] = {0};
   INT iCharCntr = 0;
 
   EnterCriticalSection(&threadAccess);
