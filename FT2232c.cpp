@@ -111,7 +111,7 @@ FTC_STATUS FT2232c::FTC_IsDeviceNameLocationIDValid(LPSTR lpDeviceName, DWORD dw
   DWORD dwDeviceType = 0;
   DWORD dwProductVendorID = 0;
   DWORD dwLocID = 0;
-  SerialNumber szSerialNumber;
+  SerialNumber szSerialNumber = {0};
   char szDeviceNameBuffer[DEVICE_STRING_BUFF_SIZE + 1] = {0};
   FT_HANDLE ftHandle;
   BOOL bDeviceNameFound = false;
@@ -333,7 +333,7 @@ FTC_STATUS FT2232c::FTC_GetDeviceNameLocationID(DWORD dwDeviceIndex, LPSTR lpDev
   DWORD dwFlags = 0;
   DWORD dwDeviceType = 0;
   DWORD dwProductVendorID = 0;
-  SerialNumber szSerialNumber;
+  SerialNumber szSerialNumber = {0};
   char szDeviceNameBuffer[DEVICE_STRING_BUFF_SIZE + 1] = {0};
   FT_HANDLE ftHandle;
 
@@ -748,12 +748,12 @@ FTC_STATUS FT2232c::FTC_SynchronizeMPSSEInterface(FTC_HANDLE ftHandle)
 BOOLEAN FT2232c::FTC_Timeout(SYSTEMTIME StartSystemTime, DWORD dwTimeoutmSecs)
 {
   BOOLEAN bTimoutExpired = false;
-  FILETIME StartFileTime;
-  ULARGE_INTEGER StartTime;
-  SYSTEMTIME EndSystemTime;
-  FILETIME EndFileTime;
-  ULARGE_INTEGER EndTime;
-  ULONGLONG ulTimeoutmSecs = dwTimeoutmSecs * CONVERT_1MS_TO_100NS; //10000;
+  FILETIME StartFileTime = {0};
+  ULARGE_INTEGER StartTime = {0};
+  SYSTEMTIME EndSystemTime = {0};
+  FILETIME EndFileTime = {0};
+  ULARGE_INTEGER EndTime = {0};
+  ULONGLONG ulTimeoutmSecs = (ULONGLONG)dwTimeoutmSecs * CONVERT_1MS_TO_100NS; //10000;
 
   GetLocalTime(&EndSystemTime);
 
