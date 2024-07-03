@@ -510,7 +510,7 @@ void FT2232hMpsseJtag::GetGeneralPurposeInputOutputPinsInputStates(DWORD dwInput
 FTC_STATUS FT2232hMpsseJtag::GetGeneralPurposeLowerInputOutputPins(FTC_HANDLE ftHandle, PFTC_LOW_HIGH_PINS pLowPinsInputData)
 {
   FTC_STATUS Status = FTC_SUCCESS;
-  InputByteBuffer InputBuffer;
+  PInputByteBuffer pInputBuffer = nullptr;
   DWORD dwNumBytesRead = 0;
   DWORD dwNumBytesDeviceInputBuffer;
 
@@ -522,8 +522,14 @@ FTC_STATUS FT2232hMpsseJtag::GetGeneralPurposeLowerInputOutputPins(FTC_HANDLE ft
   // Get the number of bytes in the device input buffer
   if ((Status = FT_GetQueueStatus((FT_HANDLE)ftHandle, &dwNumBytesDeviceInputBuffer)) == FTC_SUCCESS)
   {
+    pInputBuffer = (InputByteBuffer*)malloc(sizeof(InputByteBuffer));
+    if (pInputBuffer == nullptr)
+    {
+        return FTC_INSUFFICIENT_RESOURCES;
+    }
+
     if (dwNumBytesDeviceInputBuffer > 0)
-      Status = FTC_ReadBytesFromDevice(ftHandle, &InputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
+      Status = FTC_ReadBytesFromDevice(ftHandle, pInputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
 
     if (Status == FTC_SUCCESS)
     {
@@ -536,12 +542,15 @@ FTC_STATUS FT2232hMpsseJtag::GetGeneralPurposeLowerInputOutputPins(FTC_HANDLE ft
       {
         if ((Status = FTC_GetNumberBytesFromDeviceInputBuffer(ftHandle, &dwNumBytesDeviceInputBuffer)) == FTC_SUCCESS)
         {
-          if ((Status = FTC_ReadBytesFromDevice(ftHandle, &InputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead)) == FTC_SUCCESS)
+          if ((Status = FTC_ReadBytesFromDevice(ftHandle, pInputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead)) == FTC_SUCCESS)
             // shift right by 4 bits ie move general purpose I/O low pins 1-4 from bits 4-7 to bits 0-3
-            GetGeneralPurposeInputOutputPinsInputStates((InputBuffer[0] >> 4), pLowPinsInputData);
+            GetGeneralPurposeInputOutputPinsInputStates(((*pInputBuffer)[0] >> 4), pLowPinsInputData);
         }
       }
     }
+
+    free(pInputBuffer);
+    pInputBuffer = nullptr;
   }
 
   return Status;
@@ -553,7 +562,7 @@ FTC_STATUS FT2232hMpsseJtag::GetGeneralPurposeInputOutputPins(FTC_HANDLE ftHandl
                                                               PFTC_LOW_HIGH_PINS pHighPinsInputData)
 {
   FTC_STATUS Status = FTC_SUCCESS;
-  InputByteBuffer InputBuffer;
+  PInputByteBuffer pInputBuffer = nullptr;
   DWORD dwNumBytesRead = 0;
   DWORD dwNumBytesDeviceInputBuffer;
   BOOL bHiSpeedTypeDevice = FALSE;
@@ -580,11 +589,16 @@ FTC_STATUS FT2232hMpsseJtag::GetGeneralPurposeInputOutputPins(FTC_HANDLE ftHandl
         // If the device is not a hi-speed device or is a FT2232H hi-speed device
         if ((bHiSpeedTypeDevice == FALSE) || ((bHiSpeedTypeDevice == TRUE) && (bHiSpeedFT2232HTDeviceype == TRUE)))
         {
+          pInputBuffer = (InputByteBuffer*)malloc(sizeof(InputByteBuffer));
+          if (pInputBuffer == nullptr)
+          {
+            return FTC_INSUFFICIENT_RESOURCES;
+          }
           // Get the number of bytes in the device input buffer
           if ((Status = FT_GetQueueStatus((FT_HANDLE)ftHandle, &dwNumBytesDeviceInputBuffer)) == FTC_SUCCESS)
           {
             if (dwNumBytesDeviceInputBuffer > 0)
-              Status = FTC_ReadBytesFromDevice(ftHandle, &InputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
+              Status = FTC_ReadBytesFromDevice(ftHandle, pInputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
 
             if (Status == FTC_SUCCESS)
             {
@@ -597,12 +611,14 @@ FTC_STATUS FT2232hMpsseJtag::GetGeneralPurposeInputOutputPins(FTC_HANDLE ftHandl
               {
                 if ((Status = FTC_GetNumberBytesFromDeviceInputBuffer(ftHandle, &dwNumBytesDeviceInputBuffer)) == FTC_SUCCESS)
                 {
-                  if ((Status = FTC_ReadBytesFromDevice(ftHandle, &InputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead)) == FTC_SUCCESS)
-                    GetGeneralPurposeInputOutputPinsInputStates(InputBuffer[0], pHighPinsInputData);
+                  if ((Status = FTC_ReadBytesFromDevice(ftHandle, pInputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead)) == FTC_SUCCESS)
+                    GetGeneralPurposeInputOutputPinsInputStates((*pInputBuffer)[0], pHighPinsInputData);
                 }
               }
             }
           }
+          free(pInputBuffer);
+          pInputBuffer = nullptr;
         }
       }
     }
@@ -644,7 +660,7 @@ FTC_STATUS FT2232hMpsseJtag::GetHiSpeedDeviceGeneralPurposeInputOutputPins(FTC_H
                                                                            PFTH_LOW_HIGH_PINS pHighPinsInputData)
 {
   FTC_STATUS Status = FTC_SUCCESS;
-  InputByteBuffer InputBuffer;
+  PInputByteBuffer pInputBuffer = nullptr;
   DWORD dwNumBytesRead = 0;
   DWORD dwNumBytesDeviceInputBuffer;
   BOOL bHiSpeedFT2232HTDeviceype = FALSE;
@@ -676,8 +692,14 @@ FTC_STATUS FT2232hMpsseJtag::GetHiSpeedDeviceGeneralPurposeInputOutputPins(FTC_H
           // Get the number of bytes in the device input buffer
           if ((Status = FT_GetQueueStatus((FT_HANDLE)ftHandle, &dwNumBytesDeviceInputBuffer)) == FTC_SUCCESS)
           {
+            pInputBuffer = (InputByteBuffer*)malloc(sizeof(InputByteBuffer));
+            if (pInputBuffer == nullptr)
+            {
+                return FTC_INSUFFICIENT_RESOURCES;
+            }
+
             if (dwNumBytesDeviceInputBuffer > 0)
-              Status = FTC_ReadBytesFromDevice(ftHandle, &InputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
+              Status = FTC_ReadBytesFromDevice(ftHandle, pInputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
 
             if (Status == FTC_SUCCESS)
             {
@@ -690,11 +712,13 @@ FTC_STATUS FT2232hMpsseJtag::GetHiSpeedDeviceGeneralPurposeInputOutputPins(FTC_H
               {
                 if ((Status = FTC_GetNumberBytesFromDeviceInputBuffer(ftHandle, &dwNumBytesDeviceInputBuffer)) == FTC_SUCCESS)
                 {
-                  if ((Status = FTC_ReadBytesFromDevice(ftHandle, &InputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead)) == FTC_SUCCESS)
-                    GetHiSpeedDeviceGeneralPurposeInputOutputPinsInputStates(InputBuffer[0], pHighPinsInputData);
+                  if ((Status = FTC_ReadBytesFromDevice(ftHandle, pInputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead)) == FTC_SUCCESS)
+                    GetHiSpeedDeviceGeneralPurposeInputOutputPinsInputStates((*pInputBuffer)[0], pHighPinsInputData);
                 }
               }
             }
+            free(pInputBuffer);
+            pInputBuffer = nullptr;
           }
         }
       }
@@ -823,41 +847,49 @@ FTC_STATUS FT2232hMpsseJtag::GetDataFromExternalDevice(FTC_HANDLE ftHandle, DWOR
   DWORD dwNumRemainingDataBits = 0;
   DWORD dwNumDataBytesRead = 0;
   //DWORD dwNumBytesDeviceInputBuffer = 0;
-  InputByteBuffer InputBuffer;
+  PInputByteBuffer pInputBuffer = nullptr;
   DWORD dwBytesReadIndex = 0;
   BYTE LastDataBit = 0;
 
+  pInputBuffer = (InputByteBuffer*)malloc(sizeof(InputByteBuffer));
+  if (pInputBuffer == nullptr)
+  {
+      return FTC_INSUFFICIENT_RESOURCES;
+  }
   GetNumDataBytesToRead(dwNumBitsToRead, &dwNumReadDataBytes, &dwNumRemainingDataBits);
 
-  Status = FTC_ReadFixedNumBytesFromDevice(ftHandle, &InputBuffer, dwNumReadDataBytes, &dwNumDataBytesRead);
+  Status = FTC_ReadFixedNumBytesFromDevice(ftHandle, pInputBuffer, dwNumReadDataBytes, &dwNumDataBytesRead);
 
   if (Status == FTC_SUCCESS)
   {
     // adjust last 2 bytes
     if (dwNumRemainingDataBits < 8)
     {
-      InputBuffer[dwNumReadDataBytes - 2] = (InputBuffer[dwNumReadDataBytes - 2] >> dwNumRemainingDataBits);
-      LastDataBit = (InputBuffer[dwNumReadDataBytes - 1] << (dwNumTmsClocks - 1));
+        (*pInputBuffer)[dwNumReadDataBytes - 2] = ((*pInputBuffer)[dwNumReadDataBytes - 2] >> dwNumRemainingDataBits);
+      LastDataBit = ((*pInputBuffer)[dwNumReadDataBytes - 1] << (dwNumTmsClocks - 1));
       LastDataBit = (LastDataBit & '\x80'); // strip the rest
-      InputBuffer[dwNumReadDataBytes - 2] = (InputBuffer[dwNumReadDataBytes - 2] | (LastDataBit >> (dwNumRemainingDataBits - 1)));
+      (*pInputBuffer)[dwNumReadDataBytes - 2] = ((*pInputBuffer)[dwNumReadDataBytes - 2] | (LastDataBit >> (dwNumRemainingDataBits - 1)));
 
       dwNumReadDataBytes = (dwNumReadDataBytes - 1);
 
       for (dwBytesReadIndex = 0 ; dwBytesReadIndex < dwNumReadDataBytes; dwBytesReadIndex++)
-        (*pReadDataBuffer)[dwBytesReadIndex] = InputBuffer[dwBytesReadIndex];
+        (*pReadDataBuffer)[dwBytesReadIndex] = (*pInputBuffer)[dwBytesReadIndex];
     }
     else // case for 0 bit shift in data + TMS read bit
     {
-      LastDataBit = (InputBuffer[dwNumReadDataBytes - 1] << (dwNumTmsClocks - 1));
+      LastDataBit = ((*pInputBuffer)[dwNumReadDataBytes - 1] << (dwNumTmsClocks - 1));
       LastDataBit = (LastDataBit >> 7); // strip the rest
-      InputBuffer[dwNumReadDataBytes - 1] = LastDataBit;
+      (*pInputBuffer)[dwNumReadDataBytes - 1] = LastDataBit;
 
       for (dwBytesReadIndex = 0 ; dwBytesReadIndex < dwNumReadDataBytes; dwBytesReadIndex++)
-        (*pReadDataBuffer)[dwBytesReadIndex] = InputBuffer[dwBytesReadIndex];
+        (*pReadDataBuffer)[dwBytesReadIndex] = (*pInputBuffer)[dwBytesReadIndex];
     }
 
     *lpdwNumBytesReturned = dwNumReadDataBytes;
   }
+
+  free(pInputBuffer);
+  pInputBuffer = nullptr;
 
   return Status;
 }
@@ -1007,7 +1039,7 @@ FTC_STATUS FT2232hMpsseJtag::WriteReadDataToFromExternalDevice(FTC_HANDLE ftHand
   BYTE LastDataBit = 0;
   DWORD dwNumTmsClocks = 0;
   DWORD dwNumReadDataBytes = 0;
-  InputByteBuffer InputBuffer;
+  PInputByteBuffer pInputBuffer = nullptr;
   DWORD dwNumDataBytesRead = 0;
   DWORD dwBytesReadIndex = 0;
 
@@ -1020,35 +1052,44 @@ FTC_STATUS FT2232hMpsseJtag::WriteReadDataToFromExternalDevice(FTC_HANDLE ftHand
 
   GetNumDataBytesToRead(dwNumBitsToWriteRead, &dwNumReadDataBytes, &dwNumRemainingDataBits);
 
-  Status = FTC_SendReadBytesToFromDevice(ftHandle, &InputBuffer, dwNumReadDataBytes, &dwNumDataBytesRead);
+  pInputBuffer = (InputByteBuffer*)malloc(sizeof(InputByteBuffer));
+  if (pInputBuffer == nullptr)
+  {
+      return FTC_INSUFFICIENT_RESOURCES;
+  }
+
+  Status = FTC_SendReadBytesToFromDevice(ftHandle, pInputBuffer, dwNumReadDataBytes, &dwNumDataBytesRead);
 
   if (Status == FTC_SUCCESS)
   {
     // adjust last 2 bytes
     if (dwNumRemainingDataBits < 8)
     {
-      InputBuffer[dwNumReadDataBytes - 2] = (InputBuffer[dwNumReadDataBytes - 2] >> dwNumRemainingDataBits);
-      LastDataBit = (InputBuffer[dwNumReadDataBytes - 1] << (dwNumTmsClocks - 1));
+      (*pInputBuffer)[dwNumReadDataBytes - 2] = ((*pInputBuffer)[dwNumReadDataBytes - 2] >> dwNumRemainingDataBits);
+      LastDataBit = ((*pInputBuffer)[dwNumReadDataBytes - 1] << (dwNumTmsClocks - 1));
       LastDataBit = (LastDataBit & '\x80'); // strip the rest
-      InputBuffer[dwNumReadDataBytes - 2] = (InputBuffer[dwNumReadDataBytes - 2] | (LastDataBit >> (dwNumRemainingDataBits - 1)));
+      (*pInputBuffer)[dwNumReadDataBytes - 2] = ((*pInputBuffer)[dwNumReadDataBytes - 2] | (LastDataBit >> (dwNumRemainingDataBits - 1)));
 
       dwNumReadDataBytes = (dwNumReadDataBytes - 1);
 
       for (dwBytesReadIndex = 0 ; dwBytesReadIndex < dwNumReadDataBytes; dwBytesReadIndex++)
-        (*pReadDataBuffer)[dwBytesReadIndex] = InputBuffer[dwBytesReadIndex];
+        (*pReadDataBuffer)[dwBytesReadIndex] = (*pInputBuffer)[dwBytesReadIndex];
     }
     else // case for 0 bit shift in data + TMS read bit
     {
-      LastDataBit = (InputBuffer[dwNumReadDataBytes - 1] << (dwNumTmsClocks - 1));
+      LastDataBit = ((*pInputBuffer)[dwNumReadDataBytes - 1] << (dwNumTmsClocks - 1));
       LastDataBit = (LastDataBit >> 7); // strip the rest
-      InputBuffer[dwNumReadDataBytes - 1] = LastDataBit;
+      (*pInputBuffer)[dwNumReadDataBytes - 1] = LastDataBit;
 
       for (dwBytesReadIndex = 0 ; dwBytesReadIndex < dwNumReadDataBytes; dwBytesReadIndex++)
-        (*pReadDataBuffer)[dwBytesReadIndex] = InputBuffer[dwBytesReadIndex];
+        (*pReadDataBuffer)[dwBytesReadIndex] = (*pInputBuffer)[dwBytesReadIndex];
     }
 
     *lpdwNumBytesReturned = dwNumReadDataBytes;
   }
+
+  free(pInputBuffer);
+  pInputBuffer = nullptr;
 
   return Status;
 }
@@ -2537,9 +2578,15 @@ FTC_STATUS FT2232hMpsseJtag::JTAG_ExecuteCommandSequence(FTC_HANDLE ftHandle, PR
   FTC_STATUS Status = FTC_SUCCESS;
   DWORD dwNumCmdSequenceBytes = 0;
   DWORD dwCmdSequenceByteIndex = 0;
-  InputByteBuffer InputBuffer;
+  PInputByteBuffer pInputBuffer = nullptr;
   DWORD dwTotalNumBytesToBeRead = 0;
   DWORD dwNumBytesRead = 0;
+
+  pInputBuffer = (InputByteBuffer*)malloc(sizeof(InputByteBuffer));
+  if (pInputBuffer == nullptr)
+  {
+      return FTC_INSUFFICIENT_RESOURCES;
+  }
 
   EnterCriticalSection(&threadAccess);
 
@@ -2576,12 +2623,12 @@ FTC_STATUS FT2232hMpsseJtag::JTAG_ExecuteCommandSequence(FTC_HANDLE ftHandle, PR
             // Calculate the total number of bytes to be read, as a result of a command sequence
             dwTotalNumBytesToBeRead = GetTotalNumCommandsSequenceDataBytesToRead();
 
-            Status = FTC_ReadCommandsSequenceBytesFromDevice(ftHandle, &InputBuffer, dwTotalNumBytesToBeRead, &dwNumBytesRead);
+            Status = FTC_ReadCommandsSequenceBytesFromDevice(ftHandle, pInputBuffer, dwTotalNumBytesToBeRead, &dwNumBytesRead);
         
             if (Status == FTC_SUCCESS)
             {
               // Process all bytes received and return them in the read data buffer
-              ProcessReadCommandsSequenceBytes(&InputBuffer, dwNumBytesRead, pReadCmdSequenceDataBuffer, lpdwNumBytesReturned);
+              ProcessReadCommandsSequenceBytes(pInputBuffer, dwNumBytesRead, pReadCmdSequenceDataBuffer, lpdwNumBytesReturned);
             }
           }
         }
@@ -2598,6 +2645,9 @@ FTC_STATUS FT2232hMpsseJtag::JTAG_ExecuteCommandSequence(FTC_HANDLE ftHandle, PR
   }
 
   LeaveCriticalSection(&threadAccess);
+
+  free(pInputBuffer);
+  pInputBuffer = nullptr;
 
   return Status;
 }
