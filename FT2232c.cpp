@@ -33,7 +33,7 @@ Revision History:
 --*/
 
 #include "stdafx.h"
-
+#include <stdlib.h>
 #include "FT2232c.h"
 
 
@@ -563,7 +563,7 @@ void FT2232c::FTC_RemoveDeviceHandle(FTC_HANDLE ftHandle)
 FTC_STATUS FT2232c::FTC_ResetUSBDevicePurgeUSBInputBuffer(FTC_HANDLE ftHandle)
 {
   FTC_STATUS Status = FTC_SUCCESS;
-  InputByteBuffer InputBuffer;
+  PInputByteBuffer pInputBuffer = nullptr;
   DWORD dwNumBytesRead = 0;
   DWORD dwNumBytesDeviceInputBuffer;
 
@@ -576,8 +576,18 @@ FTC_STATUS FT2232c::FTC_ResetUSBDevicePurgeUSBInputBuffer(FTC_HANDLE ftHandle)
 
     if (Status == FTC_SUCCESS)
     {
-      if (dwNumBytesDeviceInputBuffer > 0)
-        FTC_ReadBytesFromDevice(ftHandle, &InputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
+      pInputBuffer = (InputByteBuffer*)malloc(sizeof(InputByteBuffer));
+      if (pInputBuffer == nullptr)
+      {
+        return FTC_INSUFFICIENT_RESOURCES;
+      }
+      
+      if (dwNumBytesDeviceInputBuffer > 0) {
+        FTC_ReadBytesFromDevice(ftHandle, pInputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
+      }
+
+      free(pInputBuffer);
+      pInputBuffer = nullptr;
     }
   }
 
@@ -630,13 +640,19 @@ FTC_STATUS FT2232c::FTC_SendReceiveCommandFromMPSSEInterface(FTC_HANDLE ftHandle
 {
   FTC_STATUS Status = FTC_SUCCESS;
   DWORD dwNumBytesDeviceInputBuffer = 0;
-  SYSTEMTIME StartTime;
-  InputByteBuffer InputBuffer;
+  SYSTEMTIME StartTime = {0};
+  PInputByteBuffer pInputBuffer = nullptr;
   DWORD dwNumBytesRead = 0;
   DWORD dwByteCntr = 0;
   BOOL bBadCommandResponse = false;
 
   *lpbCommandEchod = false;
+
+  pInputBuffer = (InputByteBuffer*)malloc(sizeof(InputByteBuffer));
+  if (pInputBuffer == nullptr)
+  {
+      return FTC_INSUFFICIENT_RESOURCES;
+  }
 
   if (!bSendEchoCommandContinuouslyOnce)
   {
@@ -671,7 +687,7 @@ FTC_STATUS FT2232c::FTC_SendReceiveCommandFromMPSSEInterface(FTC_HANDLE ftHandle
     {
       if (dwNumBytesDeviceInputBuffer > 0)
       {
-        FTC_ReadBytesFromDevice(ftHandle, &InputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
+        FTC_ReadBytesFromDevice(ftHandle, pInputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
 
         if (dwNumBytesRead > 0)
         {
@@ -681,13 +697,13 @@ FTC_STATUS FT2232c::FTC_SendReceiveCommandFromMPSSEInterface(FTC_HANDLE ftHandle
           {
 		        if (dwByteCntr <= (dwNumBytesRead - 1))
             {
-              if (InputBuffer[dwByteCntr] == BAD_COMMAND_RESPONSE)
+              if ((*pInputBuffer)[dwByteCntr] == BAD_COMMAND_RESPONSE)
                 bBadCommandResponse = true;
               else
               {
                 if (bBadCommandResponse == TRUE)
                 {
-                  if (InputBuffer[dwByteCntr] == EchoCommand)
+                  if ((*pInputBuffer)[dwByteCntr] == EchoCommand)
                     *lpbCommandEchod = true;
                 }
 
@@ -704,6 +720,10 @@ FTC_STATUS FT2232c::FTC_SendReceiveCommandFromMPSSEInterface(FTC_HANDLE ftHandle
   }
   while ((*lpbCommandEchod == false) && (Status == FTC_SUCCESS));
 
+
+  free(pInputBuffer);
+  pInputBuffer = nullptr;
+
   return Status;
 }
 
@@ -711,9 +731,15 @@ FTC_STATUS FT2232c::FTC_SynchronizeMPSSEInterface(FTC_HANDLE ftHandle)
 {
   FTC_STATUS Status = FTC_SUCCESS;
   DWORD dwNumBytesDeviceInputBuffer = 0;
-  InputByteBuffer InputBuffer;
+  PInputByteBuffer pInputBuffer = nullptr;
   DWORD dwNumBytesRead = 0;
   BOOL bCommandEchod = false;
+
+  pInputBuffer = (InputByteBuffer*)malloc(sizeof(InputByteBuffer));
+  if (pInputBuffer == nullptr)
+  {
+      return FTC_INSUFFICIENT_RESOURCES;
+  }
 
   // Get the number of bytes in the device input buffer
   Status = FT_GetQueueStatus((FT_HANDLE)ftHandle, &dwNumBytesDeviceInputBuffer);
@@ -721,7 +747,7 @@ FTC_STATUS FT2232c::FTC_SynchronizeMPSSEInterface(FTC_HANDLE ftHandle)
   if (Status == FTC_SUCCESS)
   {
     if (dwNumBytesDeviceInputBuffer > 0)
-      FTC_ReadBytesFromDevice(ftHandle, &InputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
+      FTC_ReadBytesFromDevice(ftHandle, pInputBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
 
     Status = FTC_SendReceiveCommandFromMPSSEInterface(ftHandle, TRUE, AA_ECHO_CMD_1, &bCommandEchod);
 
@@ -741,6 +767,9 @@ FTC_STATUS FT2232c::FTC_SynchronizeMPSSEInterface(FTC_HANDLE ftHandle)
         Status = FTC_FAILED_TO_SYNCHRONIZE_DEVICE_MPSSE;
     }
   }
+
+  free(pInputBuffer);
+  pInputBuffer = nullptr;
 
   return Status;
 }
@@ -873,9 +902,15 @@ FTC_STATUS FT2232c::FTC_ReadFixedNumBytesFromDevice(FTC_HANDLE ftHandle, PInputB
 {
   FTC_STATUS Status = FTC_SUCCESS;
   DWORD dwNumBytesDeviceInputBuffer = 0;
-  InputByteBuffer TmpInputByteBuffer;
+  PInputByteBuffer pTmpInputByteBuffer = nullptr;
   DWORD dwNumBytesRead = 0;
   DWORD dwBytesReadIndex = 0;
+
+  pTmpInputByteBuffer = (InputByteBuffer*)malloc(sizeof(InputByteBuffer));
+  if (pTmpInputByteBuffer == nullptr)
+  {
+      return FTC_INSUFFICIENT_RESOURCES;
+  }
 
   do
   {
@@ -883,19 +918,22 @@ FTC_STATUS FT2232c::FTC_ReadFixedNumBytesFromDevice(FTC_HANDLE ftHandle, PInputB
 
     if ((Status == FTC_SUCCESS) && (dwNumBytesDeviceInputBuffer > 0))
     {
-      Status = FTC_ReadBytesFromDevice(ftHandle, &TmpInputByteBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
+      Status = FTC_ReadBytesFromDevice(ftHandle, pTmpInputByteBuffer, dwNumBytesDeviceInputBuffer, &dwNumBytesRead);
 
       if (Status == FTC_SUCCESS)
       {
         for (dwBytesReadIndex = 0 ; dwBytesReadIndex < dwNumBytesRead; dwBytesReadIndex++)
         {
-          (*InputBuffer)[*lpdwNumDataBytesRead] = TmpInputByteBuffer[dwBytesReadIndex];
+          (*InputBuffer)[*lpdwNumDataBytesRead] = (*pTmpInputByteBuffer)[dwBytesReadIndex];
           *lpdwNumDataBytesRead = (*lpdwNumDataBytesRead + 1);
         }
       }
     }
   }
   while ((*lpdwNumDataBytesRead < dwNumBytesToRead) && (Status == FTC_SUCCESS));
+
+  free(pTmpInputByteBuffer);
+  pTmpInputByteBuffer = nullptr;
 
   return Status;
 }
